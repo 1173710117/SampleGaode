@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gaode
+  namespace: kube-test
+  labels:
+    app: gaode
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gaode
+  template:
+    metadata:
+      labels:
+        app: gaode
+    spec:
+      containers:
+        - name: gaode
+          image: 172.31.23.153:5000/gaode:v2.0
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - mountPath: /var/log/mclient
+              name: log-volume
+      volumes:
+        - name: log-volume
+          hostPath:
+            path: /data/hitices/test-dir/log
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gaode
+  namespace: kube-test
+  labels:
+    app: gaode
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+  selector:
+    app: gaode
